@@ -3,9 +3,13 @@ require.paths.push('.');
 
 var Operetta = require('operetta').Operetta;
 
-var operetta = new Operetta(['test', 'hello', 
+var args = ['test', 'hello', 
   '-t', '-tclosetest', '-xtcloser', '-xt', 'another', 'test', '--test', 'long', 'test',
-  '-t', 'short', 'test', '--test=equals_test','--flag','/path/to/some/file']);
+  '-t', 'short', 'test', '--test=equals_test','--flag','/path/to/some/file'];
+
+console.log("[", args.join(" "), "]");
+
+var operetta = new Operetta(args);
 
 operetta.banner =  " _____         _\n"
 operetta.banner += "|_   _|__  ___| |_\n"

@@ -1,4 +1,4 @@
-/***************************************************
+/**************************************************
  *
  * Operetta: A Node Option Parser That Sings!
  * Dmytri Kleiner <dk@trick.ca>
@@ -9,6 +9,36 @@
  * terms of the Do What The Fuck You Want To Public License v2.
  * See http://sam.zoy.org/wtfpl/COPYING for more details. 
  *
+ * Plot Summary
+ *
+ * All options are arguments, but not all arguments are options.
+ * Options are arguments that are 1 letter long and start with -
+ * (short option) or many letters long and start with -- (long option)
+ *
+ * All paramaters are options but not all options are paramaters
+ * parameters are options that take values, these can be seperated by
+ * a space from the option or in the case of short option follow it 
+ * immediately. In the case of long options, values can follow =
+ * Also, short options can be added together following a single dash,
+ * only the last of these can be a pramater.
+ *
+ * Examples:
+ *
+ * Short Option: -t
+ * Many Short Options: -abcde
+ * Short Parameter: -t test or -ttest
+ * Some Short options with one paramater: -abcdettest or -abcdet test
+ * Long Option: --test
+ * Long Parameter: --test test or --test=test
+ *
+ * Any argument that doesn't follow a paramater is passed as positional.
+ * In the case of:
+ * --test=test /tmp/test
+ * /tmp/test is a positional argument
+ * however, in:
+ * --test /tmp/test
+ * /tmp/test is the value of parameter --test
+ *
  ***********************************/
 
 var events = require('events'),
@@ -16,83 +46,58 @@ var events = require('events'),
 
 var Operetta = function(args) {
   this.args = args || process.argv;
+  // options which are paramaters
   this.params = {};
+  // options which are not paramaters
   this.opts = {};
   this.values = [];
   this.banner = '';
   this.help = '';
+  // universal option detector
   this.re = /^(-[^-])([A-Za-z0-9_\-]+)?$|^(--[A-Za-z0-9_\-]+)[=]?(.+)?$/;
 };
 sys.inherits(Operetta, events.EventEmitter);
 
 Operetta.prototype.start = function(listener) {
-  var operetta = this, option, value;
-  var trigger = function() {
-    if (option || value) {
-      option = option || 'positional';
-      operetta.values[option] = operetta.values[option] || [];
-      operetta.values[option].push(value);
-      operetta.emit(option, value);
-      option = undefined
-      value = undefined
-    }
+  var operetta = this, parameter;
+  var sing = function(argument, data) {
+    operetta.values[argument] = operetta.values[argument] || [];
+    operetta.values[argument].push(data);
+    operetta.emit(argument, data);
+    parameter = undefined
+  }
+  var parse = function(option, data) {
+      parameter = operetta.params[option];
+      if (data || !parameter) sing(parameter || operetta.opts[option], data || true);
   }
   while (operetta.args.length > 0) {
     var arg = operetta.args.shift(),
       m = operetta.re.exec(arg);
     if (m) {
-      trigger();
+      if (parameter) sing(parameter, null);
       if (m[2]) {
-        m[2] = m[1][1] + m[2];
-        for (c in m[2]) {
-          var o = '-' + m[2][c];
-          if (o in operetta.opts) {
-            option = operetta.opts[o];
-            trigger();
+        var options = m[1][1] + m[2];
+        for (i in options) {
+          var option = operetta.opts["-" + options[i]];
+          if (option) {
+            parse(option);
           } else {
-            if (o in operetta.params) {
-              option = operetta.params[o];
-              if (m[2].length > c) {
-                value = m[2].slice(parseInt(c) + 1);
-                trigger();
-              }
-            } else {
-              option = undefined;
-            }
+            parse("-" + options[i], options.slice(parseInt(i) + 1));
             break;
           }
         }
-      } else {
-        var o = m[1] || m[3];
-        if (o in operetta.params) {
-          value = m[2] || m[4];
-          option = operetta.params[o];
-          if (value) {
-            trigger();
-          }
-        } else {
-          option = operetta.opts[o];
-          trigger();
-        }
-      }
-    } else {
-      if (value) {
-        value += ' ' + arg;
-      } else {
-        value = arg;
-      }
-    }
+      } else parse(m[1] || m[3], m[4]);
+    } else if (parameter) {
+      sing(parameter, arg);
+    } else sing("positional", arg);
   }
-  trigger();
-  if (listener) {
-    listener(operetta.values);
-  }
+  if (listener) listener(operetta.values);
 };
 
 Operetta.prototype.bind = function(args, description, listener, takes_arguments) {
   if (args) {
     var operetta = this;
-    if (!(args != null && typeof args === "object" && 'join' in args)) {
+    if (!(args != null && typeof args === "object" && "join" in args)) {
       args = [args];
     }
     var key = args[0];
