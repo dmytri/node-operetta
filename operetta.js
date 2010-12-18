@@ -79,17 +79,15 @@ Operetta.prototype.start = function(listener) {
         var options = m[1][1] + m[2];
         for (i in options) {
           var option = operetta.opts["-" + options[i]];
-          if (option) {
-            parse(option);
-          } else {
+          if (option) parse(option);
+          else {
             parse("-" + options[i], options.slice(parseInt(i) + 1));
             break;
           }
         }
       } else parse(m[1] || m[3], m[4]);
-    } else if (parameter) {
-      sing(parameter, arg);
-    } else sing("positional", arg);
+    } else if (parameter) sing(parameter, arg);
+    else sing("positional", arg);
   }
   if (listener) listener(operetta.values);
 };
@@ -97,22 +95,15 @@ Operetta.prototype.start = function(listener) {
 Operetta.prototype.bind = function(args, description, listener, takes_arguments) {
   if (args) {
     var operetta = this;
-    if (!(args != null && typeof args === "object" && "join" in args)) {
-      args = [args];
-    }
+    if (!(args != null && typeof args === "object" && "join" in args)) args = [args];
     var key = args[0];
     sargs = args.join(",");
     operetta.help += "\n" + args + Array(16 - sargs.length).join(" ") + description;
     args.forEach(function(option){
-      if (takes_arguments) {
-        operetta.params[option] = key;
-      } else {
-        operetta.opts[option] = key;
-      }
+      if (takes_arguments) operetta.params[option] = key;
+      else operetta.opts[option] = key;
     });
-    if (listener) {
-      operetta.on(key, listener);
-    }
+    if (listener) operetta.on(key, listener);
   }
 };
 
