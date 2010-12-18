@@ -1,5 +1,6 @@
 
 require.paths.push('.');
+var sys = require('sys');
 
 var Operetta = require('operetta').Operetta;
 
@@ -48,6 +49,4 @@ operetta.options("-x", "x!", function() {
 operetta.start(function(values) {
   console.log(values);
 });
-
-operetta.usage();
 

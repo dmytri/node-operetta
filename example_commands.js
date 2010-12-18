@@ -2,21 +2,25 @@
 require.paths.push('.');
 
 var Operetta = require('operetta').Operetta;
+var sys = require('sys');
 
-var args = ['test', 'hello', 
-  '-t', '-tclosetest', '-xtcloser', '-xt', 'another', 'test', '--test', 'long', 'test',
-  '-t', 'short', 'test', '--test=equals_test','--flag','/path/to/some/file'];
-
-console.log("[", args.join(" "), "]\n");
+var args = ['say', '-x', '--name', 'Gilbert', 'hello', 'there'];
 
 var operetta = new Operetta(args);
-operetta.command('say', function(command) {
+operetta.command('say', 'say something', function(command) {
+  command.parameters(["-n","--name"], "Add Name ");
+  command.options("-x", "Add Exlamation Mark");
   command.start(function(values) {
-    console.log(values);
+    var saying = values.positional.join(" ");
+    if (values["-n"]) {
+      saying = saying + ", " + values["-n"][0];
+    };
+    if (values["-x"]) {
+      saying = saying + "!";
+    };
+    console.log(saying);
   });
 });
 
 operetta.start();
-
-operetta.usage();
 

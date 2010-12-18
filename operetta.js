@@ -45,67 +45,79 @@ var events = require('events'),
   sys = require('sys');
 
 var Operetta = function(args) {
-  this.args = args || process.argv;
+  if (args) this.args = args 
+  else {
+    if (process.argv[0] == "node") this.args = process.argv.slice(2);
+    else this.args = process.argv.slice(1);
+  }
   // options which are paramaters
   this.params = {};
   // options which are not paramaters
   this.opts = {};
   this.commands = {};
-  this.values = [];
+  this.values = {}
+  this.values.positional = [];
   this.banner = '';
-  this.help = '';
+  this.help = 'Usage:';
   this.parent = null;
   // universal option detector
   this.re = /^(-[^-])([A-Za-z0-9_\-]+)?$|^(--[A-Za-z0-9_\-]+)[=]?(.+)?$/;
   this.parse = function(listener) {
     var operetta = this, parameter;
     var sing = function(argument, data) {
+      argument = argument || current;
       operetta.values[argument] = operetta.values[argument] || [];
       operetta.values[argument].push(data);
-      operetta.emit(argument, data);
-      if (operetta.parent) operetta.parent.emit(argument, data);
-      parameter = undefined
+      if (operetta.listeners(argument).length > 0) operetta.emit(argument, data);
+      parameter = undefined;
+      current = undefined;
     }
     var process = function(option, data) {
         parameter = operetta.params[option];
-        if (data || !parameter) sing(parameter || operetta.opts[option], data || true);
+        if (data || !parameter) sing(parameter || operetta.opts[option] || option, data || true);
     }
     while (operetta.args.length > 0) {
-      var arg = operetta.args.shift(),
-        m = operetta.re.exec(arg);
+      var current = operetta.args.shift(),
+        m = operetta.re.exec(current);
       if (m) {
         if (parameter) sing(parameter, null);
         if (m[2]) {
           var options = m[1][1] + m[2];
           for (i in options) {
-            var option = operetta.opts["-" + options[i]];
-            if (option) process(option);
-            else {
-              process("-" + options[i], options.slice(parseInt(i) + 1));
+            var a = operetta.params["-" + options[i]];
+            if (a) {
+              process(a, options.slice(parseInt(i) + 1));
               break;
-            }
+            } else process("-" + options[i]);
           }
         } else process(m[1] || m[3], m[4]);
-      } else if (parameter) sing(parameter, arg);
-      else sing("positional", arg);
+      } else if (parameter) sing(parameter, current);
+      else sing("positional", current);
     }
     if (listener) listener(operetta.values);
   };
 };
 sys.inherits(Operetta, events.EventEmitter);
 
-Operetta.prototype.start = function(listener) {
-  if (this.commands.length > 0) {
-    var command = operetta.args[0],
-    callback = this.commands(command);
-    if (listener) {
-      operetta.args.shift(),
-      operetta = new Operetta(operetta.args);
-      operetta.parent = this;
-      callback(operetta);
+Operetta.prototype.start = function(callback) {
+  var operetta = this;
+  if (operetta.parent && operetta.args.length == 0) operetta.usage();
+  else {
+    if (!operetta.opts["-h"]) {
+      operetta.options(['-h','--help'], "Show Help", function() {
+        operetta.usage();
+      });
     }
+    var arg = operetta.args[0],
+      command = operetta.commands[arg];
+    if (command) {
+      operetta.args.shift();
+      var child = new Operetta(operetta.args);
+      child.parent = operetta;
+      command(child);
+    }
+    operetta.parse(callback);
   }
-  this.parse(listener);
 };
 
 Operetta.prototype.bind = function(args, description, listener, takes_arguments) {
