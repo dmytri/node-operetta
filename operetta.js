@@ -50,46 +50,62 @@ var Operetta = function(args) {
   this.params = {};
   // options which are not paramaters
   this.opts = {};
+  this.commands = {};
   this.values = [];
   this.banner = '';
   this.help = '';
+  this.parent = null;
   // universal option detector
   this.re = /^(-[^-])([A-Za-z0-9_\-]+)?$|^(--[A-Za-z0-9_\-]+)[=]?(.+)?$/;
+  this.parse = function(listener) {
+    var operetta = this, parameter;
+    var sing = function(argument, data) {
+      operetta.values[argument] = operetta.values[argument] || [];
+      operetta.values[argument].push(data);
+      operetta.emit(argument, data);
+      if (operetta.parent) operetta.parent.emit(argument, data);
+      parameter = undefined
+    }
+    var process = function(option, data) {
+        parameter = operetta.params[option];
+        if (data || !parameter) sing(parameter || operetta.opts[option], data || true);
+    }
+    while (operetta.args.length > 0) {
+      var arg = operetta.args.shift(),
+        m = operetta.re.exec(arg);
+      if (m) {
+        if (parameter) sing(parameter, null);
+        if (m[2]) {
+          var options = m[1][1] + m[2];
+          for (i in options) {
+            var option = operetta.opts["-" + options[i]];
+            if (option) process(option);
+            else {
+              process("-" + options[i], options.slice(parseInt(i) + 1));
+              break;
+            }
+          }
+        } else process(m[1] || m[3], m[4]);
+      } else if (parameter) sing(parameter, arg);
+      else sing("positional", arg);
+    }
+    if (listener) listener(operetta.values);
+  };
 };
 sys.inherits(Operetta, events.EventEmitter);
 
 Operetta.prototype.start = function(listener) {
-  var operetta = this, parameter;
-  var sing = function(argument, data) {
-    operetta.values[argument] = operetta.values[argument] || [];
-    operetta.values[argument].push(data);
-    operetta.emit(argument, data);
-    parameter = undefined
+  if (this.commands.length > 0) {
+    var command = operetta.args[0],
+    callback = this.commands(command);
+    if (listener) {
+      operetta.args.shift(),
+      operetta = new Operetta(operetta.args);
+      operetta.parent = this;
+      callback(operetta);
+    }
   }
-  var parse = function(option, data) {
-      parameter = operetta.params[option];
-      if (data || !parameter) sing(parameter || operetta.opts[option], data || true);
-  }
-  while (operetta.args.length > 0) {
-    var arg = operetta.args.shift(),
-      m = operetta.re.exec(arg);
-    if (m) {
-      if (parameter) sing(parameter, null);
-      if (m[2]) {
-        var options = m[1][1] + m[2];
-        for (i in options) {
-          var option = operetta.opts["-" + options[i]];
-          if (option) parse(option);
-          else {
-            parse("-" + options[i], options.slice(parseInt(i) + 1));
-            break;
-          }
-        }
-      } else parse(m[1] || m[3], m[4]);
-    } else if (parameter) sing(parameter, arg);
-    else sing("positional", arg);
-  }
-  if (listener) listener(operetta.values);
+  this.parse(listener);
 };
 
 Operetta.prototype.bind = function(args, description, listener, takes_arguments) {
@@ -113,6 +129,11 @@ Operetta.prototype.parameters = function(args, description, listener) {
 
 Operetta.prototype.options = function(args, description, listener) {
   this.bind(args, description, listener, false);
+};
+
+Operetta.prototype.command = function(command, description, listener) {
+  this.help += "\n" + command + Array(16 - command.length).join(" ") + description;
+  this.commands[command] = listener;
 };
 
 Operetta.prototype.usage = function(values, listener) {
