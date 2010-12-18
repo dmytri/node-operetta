@@ -9,7 +9,7 @@ operetta.command("say", "Say Something", function(command) {
     console.log(values);
   });
 });
-operetta.parameters(["-p","--param"], "A Paramater", function(value) {
+operetta.parameters(["-p","--param"], "A Parameter", function(value) {
   console.log("Value:", value);
 });
 operetta.start(function(values) {

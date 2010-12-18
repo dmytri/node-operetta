@@ -25,8 +25,6 @@ operetta.on('positional', function(value) {
   console.log('positional:', value);
 });
 
-// Operetta has a special event binder called 'bind'
-// bind takes one or more options, a description and listener
 operetta.parameters(["-t", "--test"], "A Test Argument", function(value) {
   if (value == undefined) {
     // if no value follows options value is undefined
@@ -36,9 +34,6 @@ operetta.parameters(["-t", "--test"], "A Test Argument", function(value) {
   }
 });
 
-// An optional forth argument sets the option as a flag.
-// it does not take a value and any arguments following it
-// should be treated as positional arguments
 operetta.options("--flag", "A Test Option", function() {
   console.log("Flagged!");
 });
