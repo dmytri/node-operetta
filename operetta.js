@@ -9,36 +9,6 @@
  * terms of the Do What The Fuck You Want To Public License v2.
  * See http://sam.zoy.org/wtfpl/COPYING for more details. 
  *
- * Plot Summary
- *
- * All options are arguments, but not all arguments are options.
- * Options are arguments that are 1 letter long and start with -
- * (short option) or many letters long and start with -- (long option)
- *
- * All paramaters are options but not all options are paramaters
- * parameters are options that take values, these can be seperated by
- * a space from the option or in the case of short option follow it 
- * immediately. In the case of long options, values can follow =
- * Also, short options can be added together following a single dash,
- * only the last of these can be a pramater.
- *
- * Examples:
- *
- * Short Option: -t
- * Many Short Options: -abcde
- * Short Parameter: -t test or -ttest
- * Some Short options with one paramater: -abcdettest or -abcdet test
- * Long Option: --test
- * Long Parameter: --test test or --test=test
- *
- * Any argument that doesn't follow a paramater is passed as positional.
- * In the case of:
- * --test=test /tmp/test
- * /tmp/test is a positional argument
- * however, in:
- * --test /tmp/test
- * /tmp/test is the value of parameter --test
- *
  ***********************************/
 
 var events = require('events'),
@@ -47,7 +17,7 @@ var events = require('events'),
 var Operetta = function(args) {
   if (args) this.args = args 
   else {
-    if (process.argv[0] == "node") this.args = process.argv.slice(2);
+    if (process.argv[0].slice(-4) == "node") this.args = process.argv.slice(2);
     else this.args = process.argv.slice(1);
   }
   // options which are paramaters

@@ -1,5 +1,5 @@
 
-require.paths.push('.');
+require.paths.push('..');
 var Operetta = require('operetta').Operetta;
 
 var operetta = new Operetta();

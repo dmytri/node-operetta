@@ -1,5 +1,5 @@
 
-require.paths.push('.');
+require.paths.push('..');
 var sys = require('sys');
 
 var Operetta = require('operetta').Operetta;
