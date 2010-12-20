@@ -1,4 +1,4 @@
-<code>
+<pre>
 ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
  _____  ____  ____  ____  ____  ____  ____   __
 (  _  )(  _ \( ___)(  _ \( ___)(_  _)(_  _) /__\
@@ -8,7 +8,7 @@
         A Node Option Parser That Sings!
 
 ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
-</code>
+</pre>
 
 # Plot Summary #
 
@@ -27,22 +27,22 @@ only be referred to by there position following the command.
 
 Operetta would parse the above example as follows:
 
-<code>
+<pre>
 { positional: [ 'https://topsyturvey.onion/mikado.mkv' ],
  '-I': [ true ],
  '--insecure': [ true ]}
-</code>
+</pre>
 
 For the program to receive these values, it calls the start function with a
 callback.
 
-<code>
+<pre>
 var Operetta = require("operetta").Operetta;
 operetta = new Operetta();
 operetta.start(function(values) {
   console.log(values);
 });
-</code>
+</pre>
 
 Simple, right? And quite enough for many programs.  But that is not all, oh no
 that is not all!
@@ -58,7 +58,7 @@ Sometimes options take a value. We call these Parameters.
 The above shows the four valid forms to set values. Without any further
 instruction, Operetta would parse the above as follows:
 
-<code>
+<pre>
 { positional: [ 'secret_database', 'Iheart99' ],
  '--database': [ true ],
  '--host': [ 'control.onion' ],
@@ -70,7 +70,7 @@ instruction, Operetta would parse the above as follows:
  '-t': [ true ],
  '-p': [ true ]
 }
-</code>
+</pre>
 
 Uhgg. That's probably not what we want. It got --host right, because that is
 the most unambiguous form for a parameter to take, a long option connected to a
@@ -80,7 +80,7 @@ that --database and -p are parameters, it treats "secret_database" and
 together, Operetta thinks "usmart" is a chain of 6 options. We're going to have
 to give operetta more information to handle these correctly.
 
-<code>
+<pre>
 var Operetta = require("operetta").Operetta;
 operetta = new Operetta();
 operetta.parameters(['-D','--database'], "Database");
@@ -90,7 +90,7 @@ operetta.parameters(['-p','--password'], "Password");
 operetta.start(function(values) {
   console.log(values);
 });
-</code>
+</pre>
 
 We use the parameters method to tell Operetta some things about our parameters,
 first we pass a list of options, i.e. [['-D','--database'], this gives the long
@@ -98,13 +98,13 @@ and short form of the option, then we give a description.
 
 Now, we get the follow values:
 
-<code>
+<pre>
 { positional: [],
  '-D': [ 'secret_database' ],
  '-H': [ 'control.onion' ],
  '-u': [ 'smart' ],
  '-p': [ 'Iheart99' ]}
-</code>
+</pre>
 
 Much better! Note that the key for the value is always the first item in the
 options list passed, so -D is present, even though --database was used.
@@ -114,7 +114,7 @@ options list passed, so -D is present, even though --database was used.
 What's more is now that we have descriptions, operetta will automatically bind
 the options -h and --help to show these descriptions.
 
-<code>
+<pre>
 $ nysql --help
 
 Usage:
@@ -123,39 +123,39 @@ Usage:
 -u,--user      User
 -p,--password  Password
 -h,--help      Show Help
-</code>
+</pre>
 
 Nifty, huh? But what about plain old options? We may want to give these
 descriptions too. For example, in our earlier nurl example, we may want to
 provide descriptions for -I and --insecure. We can use the options function for
 this.
 
-<code>
+<pre>
 operetta.options(['-I','--head'], "Show document info only");
 operetta.options(['-k','--insecure'], "Allow connections to SSL sites without certs");
-</code>
+</pre>
 
 If you really insist, you can can override -h and --help using either the
 options or parameters function, you can then then get the help output by
 calling the usage function, either with out without a callback.
 
-<code>
+<pre>
 // this will call console.log with help output.
 operetta.usage();
 // this will pass usage text to a callback.
 operetta.usage(function(help) {
   console.log(help);
 });
-</code>
+</pre>
 
 We can add a banner above line that says "Usage."
 
-<code>
+<pre>
 operetta.banner = "NySQL. The Nultimate Natabase!\n";
-</code>
+</pre>
 
 Now we get the following Help:
-<code>
+<pre>
 NySQL. The Nultimate Natabase!
 
 Usage:
@@ -164,7 +164,7 @@ Usage:
 -u,--user      User
 -p,--password  Password
 -h,--help      Show Help
-</code>
+</pre>
 
 There you go! Now you can add options and parameters to your program and have
 it display nice help with the descriptions. That's all you need right? But that
@@ -179,11 +179,11 @@ each option. Here is where Operetta Sings!
 The operetta object is an EventEmitter, so you can bind events with the on
 option.
 
-<code>
+<pre>
 operetta.on('-k', function(value) {
   console.log('Warning! The url you are requesting has not given any money to the SSL root certificate racketeers, and so while it's probably perfectly secure, it is not contributing to the profits of any money grubbing certificate authority!');
 });
-</code>
+</pre>
 
 Since -k is just an option, value will always be true when this event is
 called, in the case of a parameter, value will be the value passed or null if
@@ -192,11 +192,11 @@ none was passed.
 While using the on function works, the preferred way to set a callback is to
 pass it as the third argument to either the options or parameters function.
 
-<code>
+<pre>
 operetta.options(['-k','--insecure'], "Allow connections to SSL sites without certs", function(value) {
   console.log('Danger! Danger, Will Robinson!');
 });
-</code>
+</pre>
 
 So there you have it, Options, Parameters, Help and Events. Surely that's the
 end of this interminable readme file? No! That's not all. And stop calling me
@@ -206,18 +206,18 @@ Shirley.
 
 Sometimes programs have different commands, each with their own options, i.e.
 
-<code>
+<pre>
  $ nit clone http://nitnub.onion/nit.nit
  $ nit commit -am "lotsa great codez"
  $ nit push origin master
-</code>
+</pre>
 
 If the program nit has many subcommands, i.e. clone, commit, push then each of
 these could have their own options and help. Operetta has a command function
 that allows you to define these and get a new instance of operetta just for
 these commands.
 
-<code>
+<pre>
 operetta.command('clone', "Clone a Repo", function(command) {
   command.start(function(values) {
     var url = values.positional[0];
@@ -237,19 +237,19 @@ operetta.command('push', "Push To Remote Repo", function(command) {
   });.
 });
 operetta.start();
-</code>
+</pre>
 
 Now, if you called help without a subcommand:
 
  $ nit -h
 
-<code>
+<pre>
 Usage:
 clone          Clone a Repo
 commit         Commit Changes
 push           Push To Remote Repo
 -h,--help      Show Help
-</code>
+</pre>
 
 You get a list of the subcommands.
 
@@ -257,24 +257,24 @@ However, if you call help on commit:
 
  $ nit commit --help
 
-<code>
+<pre>
 Usage:
 -a,--all       Tell the command to automatically stage files that have been modified and deleted, but new files you have not told git about are not affected.
 -m,--message   Use the given message as the commit message.
 -h,--help      Show Help
-</code>
+</pre>
 
 You get the descriptions of the options defined for commit.
 
 And yes, if you really want, subcommand can have subcommands:
 
-<code>
+<pre>
 operetta.command('submodule', "Manage Submodules", function(command) {
   command.commands('add', "Add A submodule to the repo", function(subcommand) {
     subcommand.start();
   });.
 });
-</code>
+</pre>
 
 Now you could do:
 
@@ -286,13 +286,13 @@ So, options, parameters, help, events and subcommands. Shirley, you're thinking
 operetta must be some big, baroque, bloated, blob of blubbery JavaScript! Well,
 here's what SLOCcount has to say:
 
-<code>
+<pre>
 Total Physical Source Lines of Code (SLOC)                = 107
 Development Effort Estimate, Person-Years (Person-Months) = 0.02 (0.23)
  (Basic COCOMO model, Person-Months = 2.4 * (KSLOC**1.05))
  Schedule Estimate, Years (Months)                         = 0.12 (1.43)
   (Basic COCOMO model, Months = 2.5 * (person-months**0.38))
-</code>
+</pre>
 
 That's right, small and cheap. So far it's only got One Hundred and Seven Lines
 of Code, so get it while it's small. Before I add thousands lines to support
