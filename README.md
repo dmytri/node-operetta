@@ -21,7 +21,7 @@
 In the example above, the program nurl has three arguments, two of which are
 options. Options are arguments that are one letter long and start with a dash
 (-), these are "short options," or many letters long and start with a double
-dash (--) (long option), these are long options. Arguments that are not options
+dash (--), these are long options. Arguments that are not options
 agree also called "positional" arguments, because they have no name, so can
 only be referred to by there position following the command.
 
