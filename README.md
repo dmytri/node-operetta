@@ -76,7 +76,7 @@ Uhgg. That's probably not what we want. It got --host right, because that is
 the most unambiguous form for a parameter to take, a long option connected to a
 value by an equal sign. However the rest, what a mess! Since it doesn't know
 that --database and -p are parameters, it treats "secret_database" and
-"Iheart99" as positional arguments," and since short options can be chained
+"Iheart99" as positional arguments, and since short options can be chained
 together, Operetta thinks "usmart" is a chain of 6 options. We're going to have
 to give operetta more information to handle these correctly.
 
@@ -92,8 +92,8 @@ operetta.start(function(values) {
 });
 </pre>
 
-We use the parameters method to tell Operetta some things about our parameters,
-first we pass a list of options, i.e. [['-D','--database'], this gives the long
+We use the parameters function to tell Operetta some things about our parameters,
+first we pass a list of options, i.e. ['-D','--database'], this gives the long
 and short form of the option, then we give a description.
 
 Now, we get the follow values:
@@ -112,7 +112,7 @@ options list passed, so -D is present, even though --database was used.
 ## Help ##
 
 What's more is now that we have descriptions, operetta will automatically bind
-the options -h and --help to show these descriptions.
+the options -h and --help to show these descriptions as help.
 
 <pre>
 $ nysql --help
@@ -137,7 +137,7 @@ operetta.options(['-k','--insecure'], "Allow connections to SSL sites without ce
 
 If you really insist, you can can override -h and --help using either the
 options or parameters function, you can then then get the help output by
-calling the usage function, either with out without a callback.
+calling the usage function, either with or without a callback.
 
 <pre>
 // this will call console.log with help output.
@@ -214,8 +214,8 @@ Sometimes programs have different commands, each with their own options, i.e.
 
 If the program nit has many subcommands, i.e. clone, commit, push then each of
 these could have their own options and help. Operetta has a command function
-that allows you to define these and get a new instance of operetta just for
-these commands.
+that allows you to define these and get a new instance of operetta for
+each command.
 
 <pre>
 operetta.command('clone', "Clone a Repo", function(command) {
@@ -270,7 +270,7 @@ And yes, if you really want, subcommand can have subcommands:
 
 <pre>
 operetta.command('submodule', "Manage Submodules", function(command) {
-  command.commands('add', "Add A submodule to the repo", function(subcommand) {
+  command.command('add', "Add A submodule to the repo", function(subcommand) {
     subcommand.start();
   });.
 });
@@ -295,7 +295,7 @@ Development Effort Estimate, Person-Years (Person-Months) = 0.02 (0.23)
 </pre>
 
 That's right, small and cheap. So far it's only got One Hundred and Seven Lines
-of Code, so get it while it's small. Before I add thousands of lines to support
+of Code. So get it while it's small, before I add thousands of lines to support
 such must-have features as sending and receiving email and impersonating
 a teenager in IRC channels.
 
