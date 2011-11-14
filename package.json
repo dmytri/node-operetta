@@ -1,9 +1,10 @@
 {
   "author": "Dmytri Kleiner <dk@trick.ca> (http://dmytri.info)",
   "name": "operetta",
+  "main": "operetta",
   "description": "The Node Option Parser That Sings!",
   "homepage":"https://github.com/tricknik/node-operetta",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/tricknik/node-operetta.git"
