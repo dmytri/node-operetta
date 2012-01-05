@@ -12,7 +12,7 @@
  ***********************************/
 
 var events = require('events'),
-  sys = require('sys');
+  util = require('util');
 
 var Operetta = function(args) {
   if (args) this.args = args 
@@ -67,7 +67,7 @@ var Operetta = function(args) {
     if (listener) listener(operetta.values);
   };
 };
-sys.inherits(Operetta, events.EventEmitter);
+util.inherits(Operetta, events.EventEmitter);
 
 Operetta.prototype.start = function(callback) {
   var operetta = this;
