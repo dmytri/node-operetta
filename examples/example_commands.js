@@ -2,7 +2,7 @@
 require.paths.push('..');
 
 var Operetta = require('operetta').Operetta;
-var sys = require('sys');
+var util = require('util');
 
 var args = ['say', '-x', '--name', 'Gilbert', 'hello', 'there'];
 

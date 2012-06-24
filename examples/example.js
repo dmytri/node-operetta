@@ -1,6 +1,6 @@
 
 require.paths.push('..');
-var sys = require('sys');
+var util = require('util');
 
 var Operetta = require('operetta').Operetta;
 
