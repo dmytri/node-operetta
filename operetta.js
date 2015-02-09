@@ -71,7 +71,7 @@ util.inherits(Operetta, events.EventEmitter);
 
 Operetta.prototype.start = function(callback) {
   var operetta = this;
-  if (operetta.parent && operetta.args.length == 0) operetta.usage();
+  if (operetta.parent && operetta.args.length == 0 && operetta.noop == false) operetta.usage();
   else {
     if (!operetta.opts["-h"]) {
       operetta.options(['-h','--help'], "Show Help", function() {
