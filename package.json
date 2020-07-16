@@ -1,10 +1,11 @@
 {
-  "author": "Dmytri Kleiner <dk@trick.ca> (http://dmytri.info)",
+  "author": "Dmytri Kleiner <dk@trick.ca>",
   "name": "operetta",
   "main": "operetta",
   "description": "The Node Option Parser That Sings!",
   "homepage": "https://github.com/dmytri/node-operetta",
-  "version": "0.0.6",
+  "version": "0.0.7",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/dmytri/node-operetta.git"
@@ -14,7 +15,5 @@
   },
   "engines": [
     "node >= 0.4.6"
-  ],
-  "dependencies": {},
-  "devDependencies": {}
+  ]
 }
