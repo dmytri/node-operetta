@@ -1,19 +1,37 @@
 {
-  "author": "Dmytri Kleiner <dk@trick.ca>",
   "name": "operetta",
-  "main": "operetta",
   "description": "The Node Option Parser That Sings!",
-  "homepage": "https://github.com/dmytri/node-operetta",
-  "version": "0.0.7",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/dmytri/node-operetta.git"
+  "version": "1.0.0",
+  "author": {
+    "name": "Dmytri Kleiner",
+    "email": "dk@trick.ca"
   },
   "bugs": {
     "url": "https://github.com/dmytri/node-operetta/issues"
   },
-  "engines": [
-    "node >= 0.4.6"
-  ]
+  "engines": {
+    "node": ">=8.10.0"
+  },
+  "homepage": "https://www.npmjs.com/package/operetta",
+  "keywords": [
+    "Option Parser",
+    "gnuopt",
+    "options",
+    "paramaters",
+    "subcommands",
+    "cli"
+  ],
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dmytri/node-operetta.git"
+  },
+  "scripts": {
+    "test": "standard . && tape test/*.js"
+  },
+  "devDependencies": {
+    "standard": "^14.3.4",
+    "tape": "^5.0.1"
+  }
 }
