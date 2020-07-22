@@ -37,7 +37,7 @@ For the program to receive these values, it calls the start function with a
 callback.
 
 <pre>
-var Operetta = require("operetta").Operetta;
+var Operetta = require("operetta");
 operetta = new Operetta();
 operetta.start(function(values) {
   console.log(values);
