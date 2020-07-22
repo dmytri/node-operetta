@@ -3,12 +3,6 @@
  * Operetta: A Node Option Parser That Sings!
  * Dmytri Kleiner <dk@trick.ca>
  *
- * This program is free software.
- * It comes without any warranty, to the extent permitted by
- * applicable law. You can redistribute it and/or modify it under the
- * terms of the Do What The Fuck You Want To Public License v2.
- * See http://sam.zoy.org/wtfpl/COPYING for more details.
- *
  ***********************************/
 
 var events = require('events')
@@ -119,7 +113,7 @@ Operetta.prototype.command = function (command, description, listener) {
   this.commands[command] = listener
 }
 
-Operetta.prototype.usage = function (values, listener) {
+Operetta.prototype.usage = function (listener) {
   var operetta = this
   var usage = [operetta.banner, operetta.help].join('\n')
   if (listener) {
