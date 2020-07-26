@@ -1,7 +1,7 @@
 {
   "name": "operetta",
   "description": "The Node Option Parser That Sings!",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "author": {
     "name": "Dmytri Kleiner",
     "email": "dk@trick.ca"
@@ -14,12 +14,19 @@
   },
   "homepage": "https://www.npmjs.com/package/operetta",
   "keywords": [
-    "Option Parser",
+    "parser",
+    "parsing",
+    "option parser",
+    "option parsing",
     "gnuopt",
     "options",
+    "option",
     "paramaters",
     "subcommands",
-    "cli"
+    "command",
+    "cli",
+    "argument",
+    "args"
   ],
   "license": "Apache-2.0",
   "main": "index.js",
@@ -28,7 +35,7 @@
     "url": "git://github.com/dmytri/node-operetta.git"
   },
   "scripts": {
-    "test": "standard *.js test/*.js && tape test/*.js"
+    "test": "standard --fix *.js test/*.js && tape test/*.js"
   },
   "devDependencies": {
     "standard": "^14.3.4",

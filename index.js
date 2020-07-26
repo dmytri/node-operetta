@@ -5,20 +5,21 @@
  *
  **********************************/
 
+'use strict'
 const EventEmitter = require('events')
 
-class Operetta extends EventEmitter {
-  constructor (args) {
+module.exports = class Operetta extends EventEmitter {
+  constructor (argv) {
     super()
 
-    if (args) this.args = args
+    if (argv) this.argv = argv
     else {
-      if (process.argv[0].slice(-4) === 'node') this.args = process.argv.slice(2)
-      else this.args = process.argv.slice(1)
+      if (process.argv[0].slice(-4) === 'node') this.argv = process.argv.slice(2)
+      else this.argv = process.argv.slice(1)
     }
-    // options which are paramaters
+    // options which are parameters
     this.params = {}
-    // options which are not paramaters
+    // options which are not parameters
     this.opts = {}
     this.commands = {}
     this.values = {}
@@ -29,29 +30,28 @@ class Operetta extends EventEmitter {
     // universal option detector
     this.re = /^(-[^-])([A-Za-z0-9_-]+)?$|^(--[A-Za-z0-9_-]+)[=]?(.+)?$/
     this.parse = (listener) => {
-      const operetta = this
       let parameter
       const sing = (argument, data) => {
         argument = argument || current
-        operetta.values[argument] = operetta.values[argument] || []
-        operetta.values[argument].push(data)
-        if (operetta.listeners(argument).length > 0) operetta.emit(argument, data)
+        this.values[argument] = this.values[argument] || []
+        this.values[argument].push(data)
+        if (this.listeners(argument).length > 0) this.emit(argument, data)
         parameter = undefined
         current = undefined
       }
       const process = (option, data) => {
-        parameter = operetta.params[option]
-        if (data || !parameter) sing(parameter || operetta.opts[option] || option, data || true)
+        parameter = this.params[option]
+        if (data || !parameter) sing(parameter || this.opts[option] || option, data || true)
       }
-      while (operetta.args.length > 0) {
-        var current = operetta.args.shift()
-        var m = operetta.re.exec(current)
+      while (this.argv.length > 0) {
+        var current = this.argv.shift()
+        var m = this.re.exec(current)
         if (m) {
           if (parameter) sing(parameter, null)
           if (m[2]) {
             var options = m[1][1] + m[2]
             for (const i in options) {
-              var a = operetta.params['-' + options[i]]
+              var a = this.params['-' + options[i]]
               if (a) {
                 process(a, options.slice(parseInt(i) + 1))
                 break
@@ -61,53 +61,64 @@ class Operetta extends EventEmitter {
         } else if (parameter) sing(parameter, current)
         else sing('positional', current)
       }
-      if (listener) listener(operetta.values)
+      if (listener) listener(this.argopt)
     }
+
+    this.argopt = new Proxy(this.values, {
+      get (target, name) {
+        const v = Reflect.get(target, name)
+        if (v) {
+          if (Array.isArray(v) && v.length === 1) {
+            return v[0]
+          } else {
+            return v
+          }
+        }
+      }
+    })
   }
 
   start (callback) {
-    const operetta = this
-    if (operetta.parent && operetta.args.length === 0 && operetta.noop === false) operetta.usage()
+    if (this.parent && this.argv.length === 0 && this.noop === false) this.usage()
     else {
-      if (!operetta.opts['-h']) {
-        operetta.options(['-h', '--help'], 'Show Help', () => {
-          operetta.usage()
+      if (!this.opts['-h']) {
+        this.options(['-h', '--help'], 'Show Help', () => {
+          this.usage()
           process.exit(1)
         })
       }
-      const arg = operetta.args[0]
-      const command = operetta.commands[arg]
+      const arg = this.argv[0]
+      const command = this.commands[arg]
       if (command) {
-        operetta.args.shift()
-        const child = new Operetta(operetta.args)
-        child.parent = operetta
+        this.argv.shift()
+        const child = new Operetta(this.argv)
+        child.parent = this
         command(child)
       }
-      operetta.parse(callback)
+      this.parse(callback)
     }
   }
 
-  bind (args, description, listener, takesArguments) {
-    if (args) {
-      const operetta = this
-      if (!(args != null && typeof args === 'object' && 'join' in args)) args = [args]
-      const key = args[0]
-      const sargs = args.join(',')
-      operetta.help += '\n' + args + Array(16 - sargs.length).join(' ') + description
-      args.forEach((option) => {
-        if (takesArguments) operetta.params[option] = key
-        else operetta.opts[option] = key
+  bind (argv, description, listener, takesArguments) {
+    if (argv) {
+      if (!(typeof argv === 'object' && 'join' in argv)) argv = [argv]
+      const key = argv[0]
+      const sargv = argv.join(',')
+      this.help += '\n' + argv + Array(16 - sargv.length).join(' ') + description
+      argv.forEach((option) => {
+        if (takesArguments) this.params[option] = key
+        else this.opts[option] = key
       })
-      if (listener) operetta.on(key, listener)
+      if (listener) this.on(key, listener)
     }
   }
 
-  parameters (args, description, listener) {
-    this.bind(args, description, listener, true)
+  parameters (argv, description, listener) {
+    this.bind(argv, description, listener, true)
   }
 
-  options (args, description, listener) {
-    this.bind(args, description, listener, false)
+  options (argv, description, listener) {
+    this.bind(argv, description, listener, false)
   }
 
   command (command, description, listener) {
@@ -116,14 +127,15 @@ class Operetta extends EventEmitter {
   }
 
   usage (listener) {
-    const operetta = this
-    const usage = [operetta.banner, operetta.help].join('\n')
+    const usage = [this.banner, this.help].join('\n')
     if (listener) {
       listener(usage)
     } else {
       console.log(usage)
     }
   }
-}
 
-module.exports = Operetta
+  static get operetta () {
+    return new Operetta()
+  }
+}

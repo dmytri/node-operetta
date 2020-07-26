@@ -1,7 +1,7 @@
 const test = require('tape')
 const Operetta = require('../index.js')
 
-const A = 'one two -X --parameter parameter -Avalue --key=value -s set -z'
+const A = 'one two -X --parameter parameter -Avalue --key=value -s set -s again -z'
 
 test('no arguments', (t) => {
   t.plan(1)
@@ -14,18 +14,18 @@ test('no arguments', (t) => {
 test('no configuration', (t) => {
   t.plan(1)
   const result = {
-    positional: ['one', 'two', 'parameter', 'set'],
-    '-X': [true],
-    '--parameter': [true],
-    '-A': [true],
-    '-v': [true],
-    '-a': [true],
-    '-l': [true],
-    '-u': [true],
-    '-e': [true],
-    '-s': [true],
-    '--key': ['value'],
-    '-z': [true]
+    positional: ['one', 'two', 'parameter', 'set', 'again'],
+    '-X': true,
+    '--parameter': true,
+    '-A': true,
+    '-v': true,
+    '-a': true,
+    '-l': true,
+    '-u': true,
+    '-e': true,
+    '-s': [true, true],
+    '--key': 'value',
+    '-z': true
   }
 
   new Operetta(A.split(' ')).start((v) => {
@@ -38,12 +38,12 @@ test('parameters', (t) => {
 
   const result = {
     positional: ['one', 'two'],
-    '-X': [true],
-    '-p': ['parameter'],
-    '-A': ['value'],
-    '-s': ['set'],
-    '--key': ['value'],
-    '-z': [true]
+    '-X': true,
+    '-p': 'parameter',
+    '-A': 'value',
+    '-s': ['set', 'again'],
+    '--key': 'value',
+    '-z': true
   }
 
   const operetta = new Operetta(A.split(' '))
@@ -56,20 +56,20 @@ test('parameters', (t) => {
 })
 
 test('events', (t) => {
-  t.plan(4)
+  t.plan(6)
 
   const result = {
     positional: ['one', 'two', 'parameter'],
-    '-X': [true],
-    '--parameter': [true],
-    '-A': [true],
-    '-v': [true],
-    '-a': [true],
-    '-l': [true],
-    '-u': [true],
-    '-e': [true],
-    '-s': ['set'],
-    '--key': ['value']
+    '-X': true,
+    '--parameter': true,
+    '-A': true,
+    '-v': true,
+    '-a': true,
+    '-l': true,
+    '-u': true,
+    '-e': true,
+    '-s': ['set', 'again'],
+    '--key': 'value'
   }
 
   const usage = 'Banner\nUsage:\n-s,--set       Set\n-z,--zap       Zap'
@@ -81,8 +81,9 @@ test('events', (t) => {
   operetta.on('-z', (v) => {
     t.fail('unset parameter should not raise event')
   })
+  const vals = ['set', 'again']
   operetta.on('-s', (v) => {
-    t.same(v, 'set', 'set parameter value correct')
+    t.same(v, vals.shift(), 'set parameter value correct')
   })
   operetta.on('-X', (v) => {
     t.same(v, true, 'option value is true')
@@ -92,24 +93,25 @@ test('events', (t) => {
   })
   operetta.start((v) => {
     t.same(v, result, 'expected result')
+    t.same(vals, [], 'multiple events')
   })
 })
 
 test('subcommands', (t) => {
-  t.plan(4)
+  t.plan(3)
 
   const result = {
     positional: ['two', 'parameter'],
-    '-X': [true],
-    '--parameter': [true],
-    '-A': [true],
-    '-v': [true],
-    '-a': [true],
-    '-l': [true],
-    '-u': [true],
-    '-e': [true],
-    '-s': ['set'],
-    '--key': ['value']
+    '-X': true,
+    '--parameter': true,
+    '-A': true,
+    '-v': true,
+    '-a': true,
+    '-l': true,
+    '-u': true,
+    '-e': true,
+    '-s': ['set', 'again'],
+    '--key': 'value'
   }
 
   const usage = '\nUsage:\n-s,--set       Set\n-z,--zap       Zap'
@@ -118,9 +120,6 @@ test('subcommands', (t) => {
   operetta.command('one', 'one', (c) => {
     c.parameters(['-s', '--set'], 'Set')
     c.parameters(['-z', '--zap'], 'Zap')
-    c.on('-s', (v) => {
-      t.same(v, 'set', 'set parameter value correct')
-    })
     c.on('-X', (v) => {
       t.same(v, true, 'option value is true')
     })
